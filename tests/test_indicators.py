@@ -2,6 +2,8 @@
 
 import math
 
+import pytest
+
 import numpy as np
 import pandas as pd
 
@@ -96,6 +98,12 @@ class TestRSI:
         r2 = rsi(s, 14)
         assert (r1.dropna() == r2.dropna()).all()
 
+    def test_zero_period_raises(self):
+        s = _make_series()
+        with pytest.raises(ValueError, match="period"):
+            rsi(s, 0)
+        assert rsi(s, 1).notna().any()
+
 
 class TestBBands:
     def test_upper_above_lower(self):
@@ -131,6 +139,12 @@ class TestATR:
         df = _make_ohlcv()
         result = atr(df["high"], df["low"], df["close"])
         assert len(result) == len(df)
+
+    def test_zero_period_raises(self):
+        df = _make_ohlcv()
+        with pytest.raises(ValueError, match="period"):
+            atr(df["high"], df["low"], df["close"], 0)
+        assert atr(df["high"], df["low"], df["close"], 1).notna().any()
 
 
 class TestMACD:

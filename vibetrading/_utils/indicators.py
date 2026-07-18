@@ -54,6 +54,8 @@ def rsi(series: pd.Series, period: int = 14) -> pd.Series:
     Returns:
         RSI series (0-100 scale, NaN for insufficient data).
     """
+    if period < 1:
+        raise ValueError("period must be >= 1")
     delta = series.diff()
     gain = delta.where(delta > 0, 0.0)
     loss = -delta.where(delta < 0, 0.0)
@@ -110,6 +112,8 @@ def atr(
     Returns:
         ATR series.
     """
+    if period < 1:
+        raise ValueError("period must be >= 1")
     prev_close = close.shift(1)
     tr1 = high - low
     tr2 = (high - prev_close).abs()
