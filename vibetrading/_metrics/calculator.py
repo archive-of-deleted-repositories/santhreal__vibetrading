@@ -189,7 +189,11 @@ class MetricsCalculator:
         if years <= 0:
             return 0.0
 
-        return (ctx.current_value / ctx.initial_value) ** (1 / years) - 1
+        # Short windows (e.g. a few 1m candles) make 1/years huge; ** can OverflowError.
+        try:
+            return (ctx.current_value / ctx.initial_value) ** (1 / years) - 1
+        except OverflowError:
+            return math.inf if ctx.current_value > ctx.initial_value else -math.inf
 
     # ── Risk metrics ───────────────────────────────────────────────────
 
