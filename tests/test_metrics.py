@@ -198,6 +198,20 @@ class TestMetricsCalculator:
         m = calc.calculate()
         assert m["cagr"] > 0
 
+    def test_cagr_short_1m_window_does_not_overflow(self):
+        """A 1% gain over two 1m candles must not raise OverflowError."""
+        results = [{"total_value": 10000.0}, {"total_value": 10100.0}]
+        bt = _FakeBacktest(
+            results=results,
+            initial_value=10000.0,
+            current_value=10100.0,
+            interval="1m",
+        )
+        calc = MetricsCalculator(bt)
+        m = calc.calculate()
+        assert m["cagr"] == math.inf
+        assert m["total_return"] == 0.01
+
     def test_sortino_ratio_computed(self):
         # Generate results with some volatility
         import random
