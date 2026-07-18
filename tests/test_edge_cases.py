@@ -252,3 +252,18 @@ def strategy():
         ec = engine.get_equity_curve()
         # First cumulative return should be 0 (no change from initial)
         assert abs(ec["cumulative_returns"].iloc[0]) < 1e-10
+
+
+class TestFormatHyperliquidPrice:
+    def test_normal_prices(self):
+        from vibetrading._utils.math import format_hyperliquid_price
+
+        assert format_hyperliquid_price(12345.0) == 12345.0
+        assert format_hyperliquid_price(0.12345) == 0.12345
+
+    def test_sub_precision_price_raises(self):
+        from vibetrading._utils.math import format_hyperliquid_price
+
+        with pytest.raises(ValueError, match="too small"):
+            format_hyperliquid_price(1e-20)
+        assert format_hyperliquid_price(1e-8) == 1e-8

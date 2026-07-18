@@ -65,4 +65,8 @@ def format_hyperliquid_price(price: float, is_spot: bool = True) -> float:
         formatted_price = round(formatted_price, max_decimals)
 
     price_str = f"{formatted_price:.{max_decimals}f}".rstrip("0").rstrip(".")
-    return float(price_str)
+    result = float(price_str)
+    if result <= 0:
+        # formatted price must stay positive for Hyperliquid
+        raise ValueError("Price is too small to represent with Hyperliquid precision")
+    return result
