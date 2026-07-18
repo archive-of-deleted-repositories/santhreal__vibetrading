@@ -252,3 +252,24 @@ def strategy():
         ec = engine.get_equity_curve()
         # First cumulative return should be 0 (no change from initial)
         assert abs(ec["cumulative_returns"].iloc[0]) < 1e-10
+
+
+class TestLoadCsvMissingTimestamp:
+    def test_load_csv_without_timestamp_returns_empty(self, tmp_path):
+        """CSV lacking a timestamp column is invalid and must not KeyError."""
+        from vibetrading.tools import load_csv
+
+        path = tmp_path / "no_ts.csv"
+        path.write_text("open,high,low,close,volume\n1,2,3,4,5\n")
+        df = load_csv(str(path))
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 0
+
+    def test_load_csv_with_timestamp_still_loads(self, tmp_path):
+        from vibetrading.tools import load_csv
+
+        path = tmp_path / "ok.csv"
+        path.write_text("timestamp,open,high,low,close,volume\n1704067200000,1,2,0.5,1.5,10\n")
+        df = load_csv(str(path))
+        assert len(df) == 1
+        assert "close" in df.columns

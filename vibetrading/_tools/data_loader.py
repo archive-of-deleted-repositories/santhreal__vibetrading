@@ -92,12 +92,15 @@ def load_csv(path: str) -> pd.DataFrame:
     if len(data) == 0 or (len(data) == 1 and "error_marker" in data.columns):
         return pd.DataFrame()
 
-    if "timestamp" in data.columns:
-        if pd.api.types.is_numeric_dtype(data["timestamp"]):
-            data["timestamp"] = pd.to_datetime(data["timestamp"], unit="ms", utc=True, errors="coerce")
-        else:
-            data["timestamp"] = pd.to_datetime(data["timestamp"], utc=True, errors="coerce")
-        data = data.dropna(subset=["timestamp"])
+    # Invalid without a timestamp column — match documented empty-DataFrame degrade.
+    if "timestamp" not in data.columns:
+        return pd.DataFrame()
+
+    if pd.api.types.is_numeric_dtype(data["timestamp"]):
+        data["timestamp"] = pd.to_datetime(data["timestamp"], unit="ms", utc=True, errors="coerce")
+    else:
+        data["timestamp"] = pd.to_datetime(data["timestamp"], utc=True, errors="coerce")
+    data = data.dropna(subset=["timestamp"])
 
     data.set_index("timestamp", inplace=True)
     data.sort_index(inplace=True)
