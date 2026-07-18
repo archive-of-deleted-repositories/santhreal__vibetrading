@@ -168,3 +168,9 @@ class TestCompare:
         assert df.loc["X", "sharpe_ratio"] == 1.2
         assert df.loc["X", "calmar_ratio"] == 2.0
         assert "strategy" not in df.columns  # It's the index
+
+    def test_to_dataframe_empty_results(self):
+        """compare.run({}) returns {}; to_dataframe must not KeyError."""
+        df = to_dataframe({})
+        assert df.empty is True
+        assert len(df) == 0

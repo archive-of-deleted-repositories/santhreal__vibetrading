@@ -170,7 +170,10 @@ def to_dataframe(results: dict[str, dict[str, Any] | None]) -> Any:
             }
         )
 
-    return pd.DataFrame(rows).set_index("strategy")
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+    return df.set_index("strategy")
 
 
 __all__ = [
